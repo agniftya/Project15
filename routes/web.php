@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\PaymentController;
 
 // Halaman utama (public)
 Route::get('/', function () {
@@ -36,9 +37,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CartController::class, 'showCheckoutForm'])->name('cart.checkout');
     Route::post('/checkout', [CartController::class, 'processCheckout'])->name('cart.processCheckout');
     
+    //Payment
+    Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::get('/tracking/{order}', [PaymentController::class, 'tracking'])->name('tracking.show');
+
     // (Optional) Clear keranjang saat testing
     Route::get('/clear-cart', function () {
         session()->forget('cart');
         return redirect()->back()->with('info', 'Keranjang berhasil dikosongkan.');
     })->name('cart.clear');
+
+    Route::post('/clear-invoice-session', function() {
+    session()->forget('invoice');
+    return response()->json(['success' => true]);
+    });
 });

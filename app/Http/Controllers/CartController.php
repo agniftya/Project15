@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Order;
 
 class CartController extends Controller
 {
@@ -84,17 +85,45 @@ class CartController extends Controller
     }
 
     public function processCheckout(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'address' => 'required|string',
-            'payment_method' => 'required|string',
+{
+    $cart = session('cart', []);
+    $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
+
+    $order = Order::create([
+        'order_number' => 'ORD-' . strtoupper(uniqid()),
+        'user_id' => auth()->id(),
+        'customer_name' => $request->name,
+        'shipping_address' => $request->address,
+        'payment_method' => $request->payment_method,
+        'total_amount' => $total,
+        'status' => 'pending'
+    ]);
+
+    // Simpan order items
+    foreach ($cart as $id => $item) {
+        $order->items()->create([
+            'product_id' => $id,
+            'quantity' => $item['quantity'],
+            'price' => $item['price']
         ]);
+    }
 
-        // Simpan pesanan (contoh sederhana, belum ke database)
-        session()->forget('cart');
+    session()->forget('cart');
 
-        return redirect()->route('cart.checkout')->with('success', 'Pesanan Anda berhasil diproses!');
+    $orderDate = $order->created_at->isoFormat('dddd, D MMMM YYYY HH:mm');
+
+    session()->flash('invoice', [
+        'order_number' => $order->order_number,
+        'customer_name' => $order->customer_name,
+        'shipping_address' => $order->shipping_address,
+        'payment_method' => $order->payment_method,
+        'total_amount' => $order->total_amount,
+        'status' => $order->status,
+        'order_date' => $order->created_at->format('d M Y H:i')
+    ]);
+    logger('Invoice Data:', session('invoice'));
+
+    return redirect()->route('dashboard')->with('invoice', session('invoice'));
     }
 
     public function storeSampleProducts()

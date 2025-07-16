@@ -93,6 +93,86 @@
 </div>
 @endsection
 
+@if(session('invoice'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        title: '<span style="color:#6f42c1">Invoice Pesanan</span>',
+        html: `
+            <div style="font-family: 'Segoe UI', sans-serif; max-width: 500px;">
+                <!-- Header -->
+                <div style="background: linear-gradient(to right, #6f42c1, #9c27b0); 
+                            color: white; padding: 15px; border-radius: 8px 8px 0 0;
+                            margin-bottom: 20px;">
+                    <h3 style="margin:0; font-weight:600;">The Agni Canvas</h3>
+                    <p style="margin:5px 0 0; opacity:0.9;">Thank you for your order!</p>
+                </div>
+                
+                <!-- Invoice Details -->
+                <div style="border: 1px solid #e0d7f3; border-radius: 8px; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight:600; color:#6f42c1;">Nomor Pesanan:</span>
+                        <span>${@json(session('invoice')['order_number'] ?? 'N/A')}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight:600; color:#6f42c1;">Tanggal:</span>
+                        <span>${@json(session('invoice')['order_date'] ?? 'N/A')}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight:600; color:#6f42c1;">Status:</span>
+                        <span style="background: #f3e5f5; color: #6f42c1; padding: 2px 8px; 
+                              border-radius: 12px; font-size: 0.85rem;">
+                            ${@json(session('invoice')['status'] ?? 'N/A')}
+                        </span>
+                    </div>
+                    
+                    <hr style="border-top: 1px dashed #e0d7f3; margin: 15px 0;">
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color:#6f42c1; margin-bottom:10px;">Detail Pelanggan</h4>
+                        <p style="margin:5px 0;"><b>Nama:</b> ${@json(session('invoice')['customer_name'] ?? 'N/A')}</p>
+                        <p style="margin:5px 0;"><b>Alamat:</b> ${@json(session('invoice')['shipping_address'] ?? 'N/A')}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color:#6f42c1; margin-bottom:10px;">Pembayaran</h4>
+                        <p style="margin:5px 0;"><b>Metode:</b> ${@json(session('invoice')['payment_method'] ?? 'N/A')}</p>
+                        <p style="margin:5px 0;"><b>Total:</b> <span style="font-size:1.2rem; color:#d63384; font-weight:600;">
+                            Rp${new Intl.NumberFormat('id-ID').format(@json(session('invoice')['total_amount'] ?? 0))}
+                        </span></p>
+                    </div>
+                    
+                    <hr style="border-top: 1px dashed #e0d7f3; margin: 15px 0;">
+                    
+                    <p style="text-align:center; color:#888; font-size:0.9rem;">
+                        Terima kasih telah berbelanja di The Agni Canvas
+                    </p>
+                </div>
+            </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Tutup',
+        confirmButtonColor: '#6f42c1',
+        width: '600px',
+        padding: '20px',
+        backdrop: `
+            rgba(111,66,193,0.4)
+            url("/images/confetti.gif")
+            center top
+            no-repeat
+        `,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+        }
+    });
+});
+</script>
+@endif
+
 @push('scripts')
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>AOS.init();</script>
